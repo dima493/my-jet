@@ -58,7 +58,6 @@
             <th>Wednesday</th>
             <th>Thursday</th>
             <th>Friday</th>
-            <th>Act</th>
         </tr>
     </thead>
     <tbody></tbody>
@@ -118,29 +117,32 @@
 
             if (!row) {
                 row = tbody.insertRow(-1);
-                for (let i = 0; i <= 6; i++) row.insertCell(i).innerHTML = "";
+                for (let i = 0; i <= 5; i++) row.insertCell(i).innerHTML = "";
                 row.cells[0].innerText = lessonNum;
+            }
 
-                row.cells[dayIndex].innerHTML = "";
+            const targetCell = row.cells[dayIndex];
+            targetCell.innerHTML = "";
 
-                let lessonContainer = document.createElement('div');
-                lessonContainer.className = "lesson-item";
-                lessonContainer.innerHTML = `
-                    <div style="color: #00FF99; border-bottom: 1px solid #333; margin-bottom: 5px;">
-                        <strong>${subject}</strong><br>
-                        <small>${cabinet}</small>
-                    </div>
-                `;
+            let lessonContainer = document.createElement('div');
+            lessonContainer.className = "lesson-item";
+            
+            let info = document.createElement('div');
+            info.style.color = "#00FF99";
+            info.innerHTML = `<strong></strong><br><small></small>`;
+            info.querySelector('strong').textContent = subject;
+            info.querySelector('small').textContent = cabinet;
 
-                let btn = document.createElement('button');
-                btn.innerHTML = "X";
-                btn.className = "x-btn";
-                btn.onclick = function() { deleteFromServer(weekNum, lessonNum, dayIndex, subject, cabinet); };
+            let btn = document.createElement('button');
+            btn.textContent = "X";
+            btn.className = "x-btn";
+            btn.onclick = () => deleteFromServer(weekNum, lessonNum, dayIndex, subject, cabinet);
 
-                lessonContainer.appendChild(btn);
-                row.cells[dayIndex].appendChild(lessonContainer);
-            }            
-            sortSchedule(tbody); 
+            lessonContainer.appendChild(info);
+            lessonContainer.appendChild(btn);
+            targetCell.appendChild(lessonContainer);
+
+            sortSchedule(tbody);
         }
 
         function sortSchedule(tbody) {
@@ -151,7 +153,7 @@
 
         function deleteFromServer(weekNum, lessonNum, dayIndex, subject, cabinet) {
             if (confirm("Видалити цю пару з розкладу?")) {
-                fetch('../databases/shredule_save.php', {
+                fetch('shredule_save.php', {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
@@ -168,7 +170,7 @@
         }
 
         window.onload = function() {
-            fetch('../databases/shredule_save.php')
+            fetch('shredule_save.php')
             .then(res => res.json())
             .then(data => {
                 if(data && Array.isArray(data)) {
